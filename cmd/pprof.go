@@ -21,12 +21,6 @@ var DumpPath string
 var Interval uint
 var Forever bool
 
-// const (
-// 	DefaultInterval uint = uint(1 * time.Minute)
-// )
-
-var DefaultDumpPath string
-
 var UriList = [3]string{
 	"/debug/pprof/heap",
 	"/debug/pprof/allocs",
@@ -75,7 +69,7 @@ func init() {
 		fmt.Printf("获取当前用户目录失败. %s\n", err)
 		os.Exit(1)
 	}
-	DefaultDumpPath = filepath.Join(homeDir, "pprof")
+	DefaultDumpPath := filepath.Join(homeDir, "pprof")
 	pprofCmd.Flags().StringVarP(&DumpPath, "dumppath", "d", DefaultDumpPath, "抓取数据文件保存位置")
 	pprofCmd.Flags().UintVarP(&Interval, "interval", "i", 1, "抓取时间间隔(默认1分钟)")
 	pprofCmd.Flags().BoolVarP(&Forever, "forever", "f", false, "是否持续运行")
