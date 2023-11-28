@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	pkgOs "github.com/pi12138/toolbox/pkg/os"
+
 	"github.com/pi12138/toolbox/pkg/os/user"
 	"github.com/spf13/cobra"
 )
@@ -99,7 +101,18 @@ func dumpFile(ip, port, path string) {
 		return
 	}
 
-	filename := toFilename(path)
+	dir := dumpDir(ip, port)
+	if exist, err := pkgOs.DirExist(dir); err != nil {
+		log(fmt.Sprintf("DirExist error. %s", err))
+		return
+	} else if !exist {
+		err = os.MkdirAll(dir, 0755)
+		if err != nil {
+			log(fmt.Sprintf("Mkdir error. %s", err))
+			return
+		}
+	}
+	filename := filepath.Join(dir, toFilename(path))
 	if err := os.WriteFile(filename, data, 0666); err != nil {
 		log(fmt.Sprintf("WriteFile error. %s", err))
 		return
@@ -124,5 +137,9 @@ func toFilename(path string) string {
 	suffix := v[len(v)-1]
 	Now := now()
 	body := strings.Replace(Now, " ", "-", 1)
-	return filepath.Join(DumpPath, fmt.Sprintf("%s.%s", body, suffix))
+	return fmt.Sprintf("%s.%s", body, suffix)
+}
+
+func dumpDir(ip, port string) string {
+	return filepath.Join(DumpPath, fmt.Sprintf("%s-%s", ip, port))
 }
