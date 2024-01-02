@@ -6,23 +6,50 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
 
+var (
+	Print bool
+)
+
 // jsoncheckCmd represents the jsoncheck command
 var jsoncheckCmd = &cobra.Command{
-	Use:   "jsoncheck",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "jsoncheck <filename>",
+	Short: "校验json文件和格式化打印json文件",
+	Long:  `校验json文件和格式化打印json文件`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("jsoncheck called")
+		if len(args) == 0 {
+			fmt.Printf("参数 <filename> 是必须的\n")
+			return
+		}
+		filename := args[0]
+
+		data, err := os.ReadFile(filename)
+		if err != nil {
+			fmt.Printf("ReadFile error. %s\n", err)
+			return
+		}
+
+		var a any
+		if err := json.Unmarshal(data, &a); err != nil {
+			fmt.Printf("json 文件内容存在问题. %s\n", err)
+			return
+		}
+
+		if Print {
+			if v, err := json.MarshalIndent(a, "", "  "); err != nil {
+				fmt.Printf("JSON 格式化错误. %s\n", err)
+				return
+			} else {
+				fmt.Printf("%s\n", string(v))
+			}
+		}
+
 	},
 }
 
@@ -38,4 +65,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// jsoncheckCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	jsoncheckCmd.Flags().BoolVarP(&Print, "print", "p", false, "print file data")
 }
