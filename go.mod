@@ -2,7 +2,10 @@ module github.com/pi12138/toolbox
 
 go 1.21.3
 
-require github.com/spf13/cobra v1.8.0
+require (
+	github.com/go-echarts/go-echarts/v2 v2.3.3
+	github.com/spf13/cobra v1.8.0
+)
 
 require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
