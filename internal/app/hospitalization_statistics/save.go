@@ -2,6 +2,7 @@ package hs
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
@@ -11,10 +12,32 @@ import (
 
 func SaveToDB(tx *gorm.DB, Body *CrawlRespBody) error {
 	var daily model.Daily
+	if err := tx.Where(&model.Daily{
+		Date: Body.Data.Date,
+	}).First(&daily).Error; !errors.Is(err, gorm.ErrRecordNotFound) {
+		return fmt.Errorf("query Daily error. %w", err)
+	}
 	daily.Date = Body.Data.Date
 	daily.Cost = int(Body.Data.DailyCost)
-	if err := tx.Create(&daily).Error; err != nil {
-		return err
+	if daily.ID != 0 {
+		if err := tx.Save(&daily).Error; err != nil {
+			return err
+		}
+		var items []model.Item
+		if err := tx.Where(&model.Item{
+			DailyId: &daily.ID,
+		}).Find(&items).Error; err != nil {
+			return fmt.Errorf("query Item error. %w", err)
+		}
+		if len(items) > 0 {
+			if err := tx.Delete(&items).Error; err != nil {
+				return err
+			}
+		}
+	} else {
+		if err := tx.Create(&daily).Error; err != nil {
+			return err
+		}
 	}
 
 	var items []model.Item
