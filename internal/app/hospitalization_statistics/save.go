@@ -14,7 +14,7 @@ func SaveToDB(tx *gorm.DB, Body *CrawlRespBody) error {
 	var daily model.Daily
 	if err := tx.Where(&model.Daily{
 		Date: Body.Data.Date,
-	}).First(&daily).Error; !errors.Is(err, gorm.ErrRecordNotFound) {
+	}).First(&daily).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return fmt.Errorf("query Daily error. %w", err)
 	}
 	daily.Date = Body.Data.Date

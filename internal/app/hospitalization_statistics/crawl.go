@@ -101,7 +101,7 @@ func addCookie(req *http.Request) error {
 	}
 }
 
-func Crawl() (*CrawlRespBody, error) {
+func Crawl(date, hosId string) (*CrawlRespBody, error) {
 	var args queryArgs
 	b, err := os.ReadFile("tmp/hs/crawl.json")
 	if err != nil {
@@ -110,6 +110,8 @@ func Crawl() (*CrawlRespBody, error) {
 	if err := json.Unmarshal(b, &args); err != nil {
 		return nil, fmt.Errorf(`crawl.json json.Unmarshal error. %w`, err)
 	}
+	args.Date = date
+	args.HosId = hosId
 	params := url.Values{}
 	params.Add("unionId", args.UnionId)
 	params.Add("corpId", args.CorpId)
