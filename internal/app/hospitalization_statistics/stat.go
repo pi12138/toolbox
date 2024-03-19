@@ -1,0 +1,6 @@
+package hs
+
+
+func Stat() {
+
+}
