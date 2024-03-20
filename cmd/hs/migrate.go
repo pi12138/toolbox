@@ -4,37 +4,20 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package hs
 
 import (
-	"fmt"
-	"log"
-	"time"
-
+	"github.com/pi12138/toolbox/internal/app/hospitalization_statistics/model"
+	db "github.com/pi12138/toolbox/internal/pkg/database"
 	"github.com/spf13/cobra"
 )
 
 // hsCmd represents the hs command
-var Cmd = &cobra.Command{
-	Use:   "hs",
-	Short: "hospitalization_statistics",
-	Long:  `hospitalization_statistics`,
+var migrateCmd = &cobra.Command{
+	Use:   "migrate",
+	Short: "migrate",
+	Long:  `migrate`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("use -h show help")
+
+		model.Migrate(db.D())
 	},
-}
-
-const (
-	dateLayout = "2006-01-02"
-)
-
-func parseDate(s string) time.Time {
-	date, err := time.Parse(dateLayout, s)
-	if err != nil {
-		log.Panicf("time.Parse error. %s\n", err)
-	}
-	return date
-}
-
-func defaultDate() string {
-	return time.Now().Format(dateLayout)
 }
 
 func init() {
@@ -47,9 +30,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// hsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	Cmd.AddCommand(crawlCmd)
-	Cmd.AddCommand(loginCmd)
-	Cmd.AddCommand(migrateCmd)
-	Cmd.AddCommand(statCmd)
 
 }

@@ -8,7 +8,7 @@ type Base struct {
 
 type Item struct {
 	Base
-	Cost      int64  `json:"cost"`
+	Cost      int    `json:"cost"`
 	DeptName  string `json:"deptName"`
 	ItemName  string `json:"itemName"`
 	ItemPrice string `json:"itemPrice"`
