@@ -9,7 +9,7 @@ type Base struct {
 type Item struct {
 	Base
 	Cost      int    `json:"cost"`
-	DeptName  string `json:"deptName"`
+	DeptName  string `json:"deptName" gorm:"type:varchar(101)"`
 	ItemName  string `json:"itemName"`
 	ItemPrice string `json:"itemPrice"`
 	ItemQty   string `json:"itemQty"`

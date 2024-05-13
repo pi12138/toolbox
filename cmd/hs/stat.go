@@ -16,8 +16,13 @@ var statCmd = &cobra.Command{
 	Long:  `统计数据`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		data := hs.Stat(db.D())
+		data := hs.Stat(db.D(), Start, End)
 		// hs.ToTable(data)
 		hs.ToExcel(data)
 	},
+}
+
+func init() {
+	statCmd.Flags().StringVarP(&Start, "start", "s", defaultDate(), "start date. (example: 2021-01-02)")
+	statCmd.Flags().StringVarP(&End, "end", "e", defaultDate(), "end date.")
 }

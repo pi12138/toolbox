@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/olekukonko/tablewriter"
@@ -42,9 +43,52 @@ func Atoi(s string) int {
 	return v
 }
 
-func Stat(tx *gorm.DB) []StatData {
+func dateRange(start, end string) []string {
+	startTime, err := time.Parse("2006-01-02", start)
+	if err != nil {
+		fmt.Println("开始日期解析错误：", err)
+		return nil
+	}
+
+	// 解析结束日期
+	endTime, err := time.Parse("2006-01-02", end)
+	if err != nil {
+		fmt.Println("结束日期解析错误：", err)
+		return nil
+	}
+
+	// 循环遍历日期范围并打印
+	ret := make([]string, 0)
+	currentTime := startTime
+	for currentTime.Before(endTime) || currentTime.Equal(endTime) {
+		ret = append(ret, currentTime.Format("2006-01-02"))
+		// 增加一天
+		currentTime = currentTime.AddDate(0, 0, 1)
+	}
+	return ret
+}
+
+func Stat(tx *gorm.DB, start, end string) []StatData {
 	var items []model.Item
-	tx.Find(&items)
+	newTx := tx.Model(model.Item{})
+	if start != "" && end != "" {
+		dr := dateRange(start, end)
+		if len(dr) > 0 {
+			var dailys []model.Daily
+			tx.Model(model.Daily{}).Where("`date` in ?", dr).Find(&dailys)
+			var dailyIds []uint
+			for _, i := range dailys {
+				dailyIds = append(dailyIds, i.ID)
+			}
+
+			fmt.Println(start, end, len(dailyIds), len(dr))
+			newTx = newTx.Where("`daily_id` IN ?", dailyIds)
+		}
+	}
+
+	if err := newTx.Find(&items).Error; err != nil {
+		panic(err)
+	}
 
 	keyToItems := make(map[string][]model.Item)
 	for i := 0; i < len(items); i++ {
@@ -186,4 +230,8 @@ func setRows(f *excelize.File, sheetName string, startRow int, data [][]string) 
 		}
 	}
 	return nil
+}
+
+func ToHTML(data []StatData) {
+
 }
